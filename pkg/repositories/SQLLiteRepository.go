@@ -3,6 +3,7 @@ package repositories
 import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"log"
 	"sbercloud_test/pkg/models"
 )
 
@@ -42,7 +43,11 @@ func (r *SQLLiteRepository) DeleteServiceConfigByVersion(serviceName string, ver
 func (r *SQLLiteRepository) CreateData(serviceName, key, value string) *models.Data {
 	config := r.GetServiceConfig(serviceName)
 	data := &models.Data{Key: key, Value: value, ConfigID: config.ID}
-	r.db.Model(&config).Association("Data").Append(data)
+	err := r.db.Model(&config).Association("Data").Append(data)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 	return data
 }
 
@@ -50,7 +55,11 @@ func (r *SQLLiteRepository) GetData(serviceName string) []models.Data {
 	config := r.GetServiceConfig(serviceName)
 
 	var data []models.Data
-	r.db.Model(&config).Association("Data").Find(&data)
+	err := r.db.Model(&config).Association("Data").Find(&data)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 	return data
 }
 
@@ -58,7 +67,11 @@ func (r *SQLLiteRepository) GetDataByVersion(serviceName string, version uint) [
 	config := r.GetServiceConfigByVersion(serviceName, version)
 
 	var data []models.Data
-	r.db.Model(&config).Association("Data").Find(&data)
+	err := r.db.Model(&config).Association("Data").Find(&data)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 	return data
 }
 
@@ -68,7 +81,11 @@ func NewSQLLiteRepository() *SQLLiteRepository {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&models.Config{}, &models.Data{})
+	err = db.AutoMigrate(&models.Config{}, &models.Data{})
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 
 	return &SQLLiteRepository{db: db}
 }

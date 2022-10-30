@@ -8,13 +8,13 @@ import (
 )
 
 func main() {
-	var repo repositories.Repository
-	repo = repositories.NewSQLLiteRepository()
+	var repository repositories.Repository
+	repository = repositories.NewSQLLiteRepository()
 
 	var service services.Service
-	service = services.NewMyService(&repo)
+	service = services.NewMyService(&repository)
 
-	h := handler.NewHandler(&service)
-	server := server.NewServer(h)
+	handler := handler.NewHandler(&service)
+	server := server.NewServer(handler)
 	server.Run()
 }

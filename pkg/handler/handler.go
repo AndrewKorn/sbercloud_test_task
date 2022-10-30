@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"reflect"
 	"sbercloud_test/pkg/models"
@@ -38,7 +39,11 @@ func (h *Handler) createConfigHandler(writer http.ResponseWriter, request *http.
 
 	bytes, _ := ioutil.ReadAll(request.Body)
 	var rawConfig map[string]interface{}
-	json.Unmarshal(bytes, &rawConfig)
+	err := json.Unmarshal(bytes, &rawConfig)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
 	serviceName := fmt.Sprintf("%v", rawConfig["serviceName"])
 	var data []models.Data
@@ -55,7 +60,11 @@ func (h *Handler) createConfigHandler(writer http.ResponseWriter, request *http.
 
 	s := *h.service
 	config := s.CreateServiceConfig(serviceName, data)
-	json.NewEncoder(writer).Encode(config)
+	err = json.NewEncoder(writer).Encode(config)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 }
 
 func (h *Handler) getConfigHandler(writer http.ResponseWriter, request *http.Request) {
@@ -91,7 +100,11 @@ func (h *Handler) deleteConfigHandler(writer http.ResponseWriter, request *http.
 			deleted = s.DeleteServiceConfig(serviceName)
 		}
 
-		json.NewEncoder(writer).Encode(deleted)
+		err := json.NewEncoder(writer).Encode(deleted)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 	}
 }
 
